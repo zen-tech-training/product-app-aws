@@ -30,6 +30,7 @@ public class ProductController {
 		productList.add(new Product(++productIdCounter, "Laptop", 3, 80000));
 		productList.add(new Product(++productIdCounter, "Pen", 20, 70));
 		productList.add(new Product(++productIdCounter, "Pencil", 15, 20));
+		productList.add(new Product(++productIdCounter, "TV", 5, 50000));
 	}
 	
 	@GetMapping("/product")
