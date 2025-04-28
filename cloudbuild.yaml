@@ -1,0 +1,28 @@
+steps:
+  # Step 1: Build the JAR file using Maven (if you haven't built it already in another step)
+  - name: 'maven:3.8.1-openjdk-17'
+    entrypoint: 'mvn'
+    args: ['clean', 'install', '-X']
+ 
+  # Step 2: Build the Docker image for your app
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/lnd-training/product-app-aws:$COMMIT_SHA', '.']
+ 
+  # Step 3: Push the Docker image to Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/lnd-training/product-app-aws:$COMMIT_SHA']
+ 
+  # Step 4: Update the Kubernetes deployment to use the newly built Docker image
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      [
+        'set', 'image', 'deployment/nginx',
+        'nginx=gcr.io/lnd-training/product-app-aws:$COMMIT_SHA'
+      ]
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=bfsi-cluster'
+      - 'SPRING_PROFILES_ACTIVE=prod'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
