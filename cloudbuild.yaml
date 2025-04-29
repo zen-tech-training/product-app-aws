@@ -1,34 +1,25 @@
 steps:
-  # Step 1: Build the JAR file using Maven
+  # Step 1: Build the JAR file using Maven (if you haven't built it already in another step)
   - name: 'maven:3.8.1-openjdk-17'
-    entrypoint: mvn
-    args: ['clean', 'install', '-DskipTests=true']
- 
-  # Step 2: Build Docker image
+    entrypoint: 'mvn'
+    args: ['clean', 'install', '-X']
+  # Step 2: Build the Docker image for your app
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/lnd-training/product-app-aus:$COMMIT_SHA', '.']
- 
-  # Step 3: Push Docker image
+    args: ['build', '-t', 'gcr.io/lnd-training/product-app-aws:$COMMIT_SHA', '.']
+  # Step 3: Push the Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/lnd-training/product-app-aus:$COMMIT_SHA']
- 
-  # Step 4: Update the Kubernetes deployment
+    args: ['push', 'gcr.io/lnd-training/product-app-aws:$COMMIT_SHA']
+  # Step 4: Update the Kubernetes deployment to use the newly built Docker image
   - name: 'gcr.io/cloud-builders/kubectl'
     args:
-      - 'set'
-      - 'image'
-      - 'deployment/product-app'
-      - 'product-app=gcr.io/lnd-training/product-app-aus:$COMMIT_SHA'
+      [
+        'set', 'image', 'deployment/nginx',
+        'nginx=gcr.io/lnd-training/product-app-aws:$COMMIT_SHA'
+      ]
     env:
       - 'CLOUDSDK_COMPUTE_ZONE=us-central1'
       - 'CLOUDSDK_CONTAINER_CLUSTER=bfsi-cluster'
- 
-  # Step 5: Apply the Kubernetes service configuration
-  - name: 'gcr.io/cloud-builders/kubectl'
-    args: ['apply', '-f', 'service.yaml']
-    env:
-      - 'CLOUDSDK_COMPUTE_ZONE=us-central1'
-      - 'CLOUDSDK_CONTAINER_CLUSTER=bfsi-cluster'
+
  
 options:
   logging: CLOUD_LOGGING_ONLY
