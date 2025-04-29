@@ -3,15 +3,15 @@ steps:
   - name: 'maven:3.8.1-openjdk-17'
     entrypoint: 'mvn'
     args: ['clean', 'install', '-X']
- 
+
   # Step 2: Build the Docker image for your app
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/lnd-training/product-app-aws:$COMMIT_SHA', '.']
- 
+
   # Step 3: Push the Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/lnd-training/product-app-aws:$COMMIT_SHA']
- 
+
   # Step 4: Update the Kubernetes deployment to use the newly built Docker image
   - name: 'gcr.io/cloud-builders/kubectl'
     args:
@@ -22,7 +22,11 @@ steps:
     env:
       - 'CLOUDSDK_COMPUTE_ZONE=us-central1'
       - 'CLOUDSDK_CONTAINER_CLUSTER=bfsi-cluster'
-     
+
+  # Step 5: Apply the Kubernetes service configuration
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'service.yaml']
 
 options:
   logging: CLOUD_LOGGING_ONLY
+
