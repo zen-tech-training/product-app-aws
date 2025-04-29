@@ -1,12 +1,19 @@
-apiVersion: v1
-kind: Service
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: product-app-service
+  name: product-app
 spec:
-  type: LoadBalancer
+  replicas: 1
   selector:
-    app: product-app
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
+    matchLabels:
+      app: product-app
+  template:
+    metadata:
+      labels:
+        app: product-app
+    spec:
+      containers:
+      - name: product-app
+        image: gcr.io/lnd-training/product-app-aus:$COMMIT_SHA
+        ports:
+        - containerPort: 8080
