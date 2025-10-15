@@ -1,4 +1,4 @@
-FROM openjdk:17 as build
+FROM openjdk:17
 ADD target/Product-App-AWS-0.0.1-SNAPSHOT.jar Product-App-AWS.jar
 ENTRYPOINT ["java", "-jar", "Product-App-AWS.jar"]
 EXPOSE 8080
